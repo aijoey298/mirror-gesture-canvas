@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GestureCanvas - 手势画布</title>
+    
+    <!-- CSS文件 -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/ui-components.css">
+    <link rel="stylesheet" href="css/effects.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- 外部库 -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <script src="js/html2canvas.min.js"></script>
+</head>
+<body>
+    <!-- 加载界面 -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在初始化摄像头...</div>
+    </div>
+    
+    <!-- 主容器 -->
+    <div id="container">
+        <!-- 隐藏的视频元素，只用于MediaPipe处理 -->
+        <video class="input_video hidden-video" autoplay playsinline muted></video>
+        
+        <!-- 显示用的画布（已经镜像处理好的） -->
+        <canvas class="output_canvas" width="1280" height="720"></canvas>
+        
+        <!-- UI界面元素 -->
+        <div id="color-indicator">
+            <div>当前颜色:</div>
+            <div class="color-dot" id="color-preview"></div>
+            <div class="color-name" id="color-name">黄色</div>
+        </div>
+        
+        <div id="gesture-hint">
+            <span class="gesture-icon">✌️</span> 拇指+食指: 绘画
+            <span class="separator">|</span>
+            <span class="gesture-icon">🤏</span> 拇指+中指: 切换颜色<br>
+            <span class="gesture-icon">✊</span> 单手握拳: 清空画布
+            <span class="separator">|</span>
+            <span class="gesture-icon">📸</span> 十字相框手势: 保存作品
+            <span class="separator">|</span>
+            <span class="gesture-icon">❤️</span> 双手拇指+食指靠近: 爱心雨<br>
+            <span class="gesture-icon">🤘</span> 金属礼: 火焰
+            <span class="separator">|</span>
+            <span class="gesture-icon">✌️</span> 剪刀手: 兔耳
+        </div>
+
+        <div id="privacy-note">摄像头画面仅在本机浏览器处理，不上传</div>
+        
+        <div id="save-progress">
+            <div style="font-size: 32px; margin-bottom: 15px;">📸 触发拍照...</div>
+            <div class="progress-container">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div id="progress-text" style="font-size: 22px; margin-top: 15px;">保持手势...</div>
+        </div>
+        
+        <div class="camera-flash" id="camera-flash"></div>
+        
+        <div class="frame-indicator" id="frame-indicator">📸 相框手势检测中</div>
+        
+        <div class="heart-indicator" id="heart-indicator">❤️ 爱心手势检测中</div>
+        
+        <div id="countdown-overlay">
+            <div class="countdown-number" id="countdown-number">3</div>
+            <div class="countdown-text">摆好姿势，准备拍照！</div>
+        </div>
+        
+        <div class="photo-frame" id="photo-frame"></div>
+        
+        <img id="screenshot-preview" alt="截图预览">
+    </div>
+
+    <!-- JavaScript文件 -->
+    <script src="js/config.js"></script>
+    <script src="js/utils/utils.js"></script>
+    <script src="js/state-manager.js"></script>
+    <script src="js/dom-manager.js"></script>
+    <script src="js/ui-manager.js"></script>
+    <script src="js/camera-manager.js"></script>
+    <script src="js/gesture-detector.js"></script>
+    <script src="js/drawing-manager.js"></script>
+    <script src="js/effects/base-effect.js"></script>
+    <script src="js/effects/heart-effect.js"></script>
+    <script src="js/effects/rock-effect.js"></script>
+    <script src="js/effects/victory-effect.js"></script>
+    <script src="js/effects/effect-manager.js"></script>
+    <script src="js/screenshot-manager.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

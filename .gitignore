@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Backups
+*.bak
+*.tmp
+project_backup_v1/
+project_backup_*/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*

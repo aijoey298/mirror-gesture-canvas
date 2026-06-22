@@ -1,0 +1,95 @@
+/* ====================== 特效元素样式 ====================== */
+.heart-particle, .heart-drawing, .heart-trail, .fullscreen-heart-particle {
+    position: absolute;
+    pointer-events: none;
+}
+
+.heart-particle {
+    z-index: 98;
+    opacity: 0;
+    animation: heartFloat 5s ease-out forwards;
+    filter: drop-shadow(0 0 10px rgba(255, 64, 129, 0.7));
+}
+
+.heart-drawing {
+    z-index: 90;
+    animation: heartBeat 1.2s ease-in-out;
+    filter: drop-shadow(0 0 20px rgba(255, 64, 129, 0.9));
+}
+
+.heart-trail {
+    border-radius: 50%;
+    z-index: 80;
+    opacity: 0.7;
+    animation: trailFade 1s ease-out forwards;
+}
+
+.fullscreen-heart-particle {
+    z-index: 97;
+    opacity: 0;
+    font-size: 40px;
+    animation: heartFloatUp 4s linear forwards; /* 默认使用匀速，JS中会覆盖时长 */
+    filter: drop-shadow(0 0 10px rgba(255, 182, 193, 0.8)) drop-shadow(0 0 20px rgba(255, 105, 180, 0.6));
+    will-change: transform, opacity;
+}
+
+@keyframes heartFloatUp {
+    0% {
+        transform: translateY(0) scale(0.5) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-120vh) scale(1.2) rotate(var(--rotation, 0deg));
+        opacity: 0;
+    }
+}
+
+/* ====================== Rock & Roll 特效 ====================== */
+.rock-particle {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 15px rgba(255, 69, 0, 0.8));
+    /* 修正 emoji 视觉中心 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+}
+
+.rock-spark {
+    position: absolute;
+    pointer-events: none;
+    z-index: 101;
+    background: #00FFFF;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00FFFF, 0 0 20px #FFFFFF;
+    will-change: transform, opacity;
+}
+
+.rock-icon {
+    position: absolute;
+    pointer-events: none;
+    z-index: 99;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 255, 0.8));
+    font-weight: bold;
+}
+
+/* ====================== Victory 特效 ====================== */
+.victory-particle {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+    will-change: transform, opacity;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.75));
+}
