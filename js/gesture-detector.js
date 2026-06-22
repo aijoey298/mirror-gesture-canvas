@@ -266,7 +266,9 @@ const GestureDefinitions = {
 // 手势检测器
 const GestureDetector = {
     hands: null,
-    camera: null,
+    frameRequestId: null,
+    running: false,
+    processingFrame: false,
     
     // 初始化手势识别
     async init() {
@@ -282,24 +284,53 @@ const GestureDetector = {
         });
 
         this.hands.onResults(this.onResults.bind(this));
+        this.startFrameLoop();
+    },
 
-        this.camera = new Camera(DomManager.elements.video, {
-            onFrame: async () => {
-                try {
-                    if (!StateManager.app.countdown && !StateManager.app.saving) {
-                        await this.hands.send({ image: DomManager.elements.video });
-                    } else {
-                        CameraManager.drawVideoOnly();
+    startFrameLoop() {
+        if (this.running) return;
+        this.running = true;
+
+        const tick = async () => {
+            if (!this.running) return;
+
+            const video = DomManager.elements.video;
+
+            try {
+                if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+                    if (StateManager.app.countdown || StateManager.app.saving) {
+                        CameraManager.drawVideoOnly({ force: true });
+                    } else if (!this.processingFrame) {
+                        this.processingFrame = true;
+                        try {
+                            await this.hands.send({ image: video });
+                        } finally {
+                            this.processingFrame = false;
+                        }
                     }
-                } catch (error) {
-                    console.warn('手势识别处理中:', error);
                 }
-            },
-            width: CONFIG.canvas.width,
-            height: CONFIG.canvas.height
-        });
-        
-        await this.camera.start();
+            } catch (error) {
+                console.warn('手势识别处理中:', error);
+                CameraManager.drawVideoOnly({ force: true });
+            }
+
+            this.frameRequestId = requestAnimationFrame(tick);
+        };
+
+        this.frameRequestId = requestAnimationFrame(tick);
+    },
+
+    stop() {
+        this.running = false;
+
+        if (this.frameRequestId) {
+            cancelAnimationFrame(this.frameRequestId);
+            this.frameRequestId = null;
+        }
+
+        if (this.hands && typeof this.hands.close === 'function') {
+            this.hands.close();
+        }
     },
     
     // 检测十字相框手势
@@ -434,8 +465,10 @@ const GestureDetector = {
     
     // MediaPipe结果处理
     onResults(results) {
+        CameraManager.markAnalysisFrame();
+
         if (StateManager.app.countdown || StateManager.app.saving) {
-            CameraManager.drawVideoOnly();
+            CameraManager.drawVideoOnly({ force: true });
             return;
         }
 

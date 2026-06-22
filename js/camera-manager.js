@@ -1,5 +1,8 @@
 // 摄像头管理器
 const CameraManager = {
+    previewFrameId: null,
+    lastAnalysisFrameAt: 0,
+
     // 初始化摄像头
     async init() {
         return new Promise((resolve, reject) => {
@@ -16,31 +19,75 @@ const CameraManager = {
                 },
                 audio: false
             }).then(stream => {
-                DomManager.elements.video.srcObject = stream;
-                // 关键修复：手动播放视频，否则画面静止黑屏
-                DomManager.elements.video.play().catch(e => console.error('视频播放失败:', e));
-                
-                DomManager.elements.video.onloadedmetadata = () => {
-                    resolve();
+                const video = DomManager.elements.video;
+                video.srcObject = stream;
+                video.onerror = reject;
+
+                const ready = () => {
+                    video.play().then(() => {
+                        this.startPreviewLoop();
+                        resolve();
+                    }).catch(reject);
                 };
-                DomManager.elements.video.onerror = reject;
+
+                if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+                    ready();
+                } else {
+                    video.onloadedmetadata = ready;
+                }
             }).catch(reject);
         });
     },
+
+    markAnalysisFrame() {
+        this.lastAnalysisFrameAt = Date.now();
+    },
+
+    startPreviewLoop() {
+        if (this.previewFrameId) return;
+
+        const tick = () => {
+            const noRecentAnalysisFrame = Date.now() - this.lastAnalysisFrameAt > 250;
+
+            if (StateManager.app.initialized && noRecentAnalysisFrame) {
+                this.drawVideoOnly({ force: true });
+            }
+
+            this.previewFrameId = requestAnimationFrame(tick);
+        };
+
+        this.previewFrameId = requestAnimationFrame(tick);
+    },
+
+    stop() {
+        if (this.previewFrameId) {
+            cancelAnimationFrame(this.previewFrameId);
+            this.previewFrameId = null;
+        }
+
+        const stream = DomManager.elements.video?.srcObject;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            DomManager.elements.video.srcObject = null;
+        }
+    },
     
     // 只绘制视频（不处理手势）
-    drawVideoOnly() {
-        if (!StateManager.app.initialized) return;
+    drawVideoOnly(options = {}) {
+        if (!StateManager.app.initialized && !options.force) return;
         
         const ctx = DomManager.elements.ctx;
         const canvas = DomManager.elements.canvas;
+        const video = DomManager.elements.video;
+
+        if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         ctx.save();
         ctx.scale(-1, 1);
         ctx.translate(-canvas.width, 0);
-        ctx.drawImage(DomManager.elements.video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         ctx.restore();
         
         ctx.drawImage(DomManager.paintCanvas, 0, 0);

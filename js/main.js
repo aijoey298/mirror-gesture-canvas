@@ -51,10 +51,8 @@ class GestureCanvasApp {
     // 清理资源
     cleanup() {
         try {
-            // 停止摄像头
-            if (GestureDetector.camera) {
-                GestureDetector.camera.stop();
-            }
+            GestureDetector.stop();
+            CameraManager.stop();
 
             // 清理特效粒子
             EffectManager.clearAllParticles();
